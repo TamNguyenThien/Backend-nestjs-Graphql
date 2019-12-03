@@ -273,7 +273,7 @@ export class UserResolver {
 
 		return updateUser ? true : false
 	}
-	
+
 	@Mutation()
 	async resetPassword(
 		@Args('resetPasswordToken') resetPasswordToken: string,

@@ -38,7 +38,7 @@ const MONGO_DB: string = process.env.MONGO_PORT ? 'chnirt-nest' : MLAB_DATABASE
 
 // jsonwebtoken
 const ISSUER: string = process.env.ISSUER || 'Acexis corp'
-const AUDIENCE: string = process.env.AUDIENCE || 'http://chnirt.github.io'
+const AUDIENCE: string = process.env.AUDIENCE || 'xxx'
 const ACCESS_TOKEN: string = process.env.ACCESS_TOKEN || 'access-token'
 const ACCESS_TOKEN_SECRET: string =
 	process.env.ACCESS_TOKEN_SECRET || 'access-token-key'
