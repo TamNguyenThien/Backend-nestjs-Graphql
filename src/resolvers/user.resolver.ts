@@ -10,6 +10,7 @@ import {
 	RefreshTokenResponse,
 	Type
 } from '../generator/graphql.schema'
+import { Service3A, GraphqlError as GraphqlError3A } from '@digihcs/3a'
 import { comparePassword, hashPassword } from '../utils'
 import { EmailResolver } from './email.resolver'
 import { USER_SUBSCRIPTION } from '../environments'
@@ -20,7 +21,7 @@ import { User } from '../models'
 export class UserResolver {
 	constructor(
 		private readonly emailResolver: EmailResolver,
-	) {}
+	) { }
 	@Query()
 	async hello() {
 		return 'world'
@@ -56,7 +57,7 @@ export class UserResolver {
 		@Args('input') input: CreateUserInput,
 		@Context('pubsub') pubsub: any,
 		@Context('req') req: any
-		): Promise<User> {
+	): Promise<User> {
 		try {
 			const { firstName, lastName, username, email, password } = input
 
@@ -138,18 +139,29 @@ export class UserResolver {
 	@Mutation()
 	async login(@Args('input') input: LoginUserInput): Promise<LoginResponse> {
 		const { username, password } = input
+		try {
+			const { errors, data } = await Service3A.login({
+				username,
+				password
+			})
+			if (errors) {
+				if (errors['code'] === 'ECONNREFUSED' || errors['code'] === 'EINVAL') {
+					throw new ApolloError('Không thể kết nối service3A!')
+				}
 
-		const user = await getMongoRepository(User).findOne({
-			where: {
-				'username': username
+				if (errors.constructor.name === 'Error') {
+					throw new ApolloError('Có lỗi xảy ra!')
+				}
+
+				throw new ApolloError(
+					(errors as GraphqlError3A[]).map(err => err.message).join(', ')
+				)
 			}
-		})
+			return { accessToken: data.token, refreshToken: '' }
 
-		if (user && (await comparePassword(password, user.password))) {
-			return await tradeToken(user)
+		} catch (err) {
+			return err
 		}
-
-		throw new AuthenticationError('Login failed.')
 	}
 	@Mutation()
 	async forgotPassword(
@@ -248,7 +260,7 @@ export class UserResolver {
 	): Promise<boolean> {
 		const user = await getMongoRepository(User).findOne({ _id })
 
-		console.log(currentPassword , password)
+		console.log(currentPassword, password)
 
 		if (!user) {
 			throw new ForbiddenError('User not found.')
@@ -267,7 +279,7 @@ export class UserResolver {
 		const updateUser = await getMongoRepository(User).save(
 			new User({
 				...user,
-					password: await hashPassword(password)
+				password: await hashPassword(password)
 			})
 		)
 
@@ -296,8 +308,8 @@ export class UserResolver {
 		const updateUser = await getMongoRepository(User).save(
 			new User({
 				...user,
-					email: user.email,
-					password: await hashPassword(password),
+				email: user.email,
+				password: await hashPassword(password),
 				resetPasswordToken: null,
 				resetPasswordExpires: null
 			})
