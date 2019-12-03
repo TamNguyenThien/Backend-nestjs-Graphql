@@ -54,12 +54,12 @@ export class GraphqlService implements GqlOptionsFactory {
 					'tracing.hideTracingResponse': false
 				}
 			},
-			tracing: NODE_ENV !== 'production',
-			cacheControl: NODE_ENV === 'production' && {
-				defaultMaxAge: 5,
-				stripFormattedExtensions: false,
-				calculateHttpHeaders: false
-			},
+			// tracing: NODE_ENV !== 'production',
+			// cacheControl: NODE_ENV === 'production' && {
+			// 	defaultMaxAge: 5,
+			// 	stripFormattedExtensions: false,
+			// 	calculateHttpHeaders: false
+			// },
 			context: async ({ req, res, connection }) => {
 				let currentUser
 				const token = req.headers[ACCESS_TOKEN!] || ''

@@ -6,7 +6,12 @@ enum Gender {
 type User {
   _id: ID!
   email: String
+	firstName: String
+	lastName: String
+	username: String
   password: String
+	resetPasswordToken: String
+	resetPasswordExpires: Float
   createdAt: Float
   updatedAt: Float
 	isLocked: Boolean!
@@ -14,17 +19,21 @@ type User {
   isActive: Boolean!
 }
 input UpdateUserInput {
-	email: String!
+	username: String!
 	password: String!
 }
 input LoginUserInput {
-  email: String!
+  username: String!
   password: String!
 }
 
 input CreateUserInput {
+	firstName: String!
+	lastName: String!
+	username: String
 	email: String!
 	password: String!
+	
 }
 
 type LoginReponse {
@@ -53,9 +62,10 @@ type Mutation {
 	): User
   updateUser(
 		_id: ID!
-		input: UpdateUserInput!
+		input: UpdateUserInput! @validate(schema: "updateUserRegister")
 	): Boolean
   deleteUser(_id: ID!): Boolean
+	verifyEmail(emailToken: String!): Boolean
   login(
 		input: LoginUserInput! @validate(schema: "loginUserRegister")
 	): LoginResponse
@@ -65,4 +75,5 @@ type Mutation {
 		password: String!
 	): Boolean
 	forgotPassword(email: String!): Boolean
+	resetPassword(resetPasswordToken: String!, password: String!): Boolean
 }

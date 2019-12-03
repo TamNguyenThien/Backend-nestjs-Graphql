@@ -15,6 +15,26 @@ export class User {
 
 	@Expose()
 	@Column()
+	firstName: string
+
+	@Expose()
+	@Column()
+	lastName: string
+
+	@Expose()
+	@Column()
+	resetPasswordToken: string
+
+	@Expose()
+	@Column()
+	resetPasswordExpires: number
+
+	@Expose()
+	@Column()
+	username: string
+
+	@Expose()
+	@Column()
 	email: string
 
 	@Expose()

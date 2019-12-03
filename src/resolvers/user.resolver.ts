@@ -6,13 +6,9 @@ import {
 	CreateUserInput,
 	UpdateUserInput,
 	LoginUserInput,
-	Result,
-	SearchInput,
-	UserResult,
 	LoginResponse,
 	RefreshTokenResponse,
-	Type,
-	UserType
+	Type
 } from '../generator/graphql.schema'
 import { comparePassword, hashPassword } from '../utils'
 import { EmailResolver } from './email.resolver'
@@ -39,7 +35,6 @@ export class UserResolver {
 		const users = await getMongoRepository(User).find({
 			isActive: true, // 1000: 60000 / 1 minute
 		})
-		// console.log(users)
 		return users
 	}
 	@Query()
@@ -63,7 +58,7 @@ export class UserResolver {
 		@Context('req') req: any
 		): Promise<User> {
 		try {
-			const { email, password } = input
+			const { firstName, lastName, username, email, password } = input
 
 			let existedUser
 
@@ -72,7 +67,6 @@ export class UserResolver {
 					'email': email
 				}
 			})
-
 			if (existedUser) {
 				throw new ForbiddenError('User already exists.')
 			}
@@ -82,8 +76,11 @@ export class UserResolver {
 				const updateUser = await getMongoRepository(User).save(
 					new User({
 						...input,
-							email,
-							password: await hashPassword(password)
+						username,
+						firstName,
+						lastName,
+						email,
+						password: await hashPassword(password)
 					})
 				)
 
@@ -93,9 +90,12 @@ export class UserResolver {
 			const createdUser = await getMongoRepository(User).save(
 				new User({
 					...input,
-						isVerified: true,
-						email,
-						password: await hashPassword(password)
+					firstName,
+					lastName,
+					username,
+					isVerified: false,
+					email,
+					password: await hashPassword(password)
 				})
 			)
 			const emailToken = await generateToken(createdUser, 'emailToken')
@@ -103,7 +103,7 @@ export class UserResolver {
 				userId: createdUser._id,
 				type: Type.VERIFY_EMAIL
 			})
-			console.log(emailToken, existedEmail)
+			// console.log(emailToken, existedEmail)
 			await sendMail(
 				'verifyEmail',
 				createdUser,
@@ -116,14 +116,32 @@ export class UserResolver {
 			throw new ApolloError(error)
 		}
 	}
+	@Mutation()
+	async verifyEmail(@Args('emailToken') emailToken: string): Promise<boolean> {
+		// const user = await verifyEmailToken(emailToken)
+		const user = await verifyToken(emailToken, 'emailToken')
 
+		console.log(user)
+
+		if (!user.isVerified) {
+			const updateUser = await getMongoRepository(User).save(
+				new User({
+					...user,
+					isVerified: true
+				})
+			)
+			return updateUser ? true : false
+		} else {
+			throw new ForbiddenError('Your email has been verified.')
+		}
+	}
 	@Mutation()
 	async login(@Args('input') input: LoginUserInput): Promise<LoginResponse> {
-		const { email, password } = input
+		const { username, password } = input
 
 		const user = await getMongoRepository(User).findOne({
 			where: {
-				'email': email
+				'username': username
 			}
 		})
 
@@ -133,7 +151,51 @@ export class UserResolver {
 
 		throw new AuthenticationError('Login failed.')
 	}
+	@Mutation()
+	async forgotPassword(
+		@Args('email') email: string,
+		@Context('req') req: any
+	): Promise<boolean> {
+		const user = await getMongoRepository(User).findOne({
+			where: {
+				'email': email,
+				isVerified: true
+			}
+		})
 
+		if (!user) {
+			throw new ForbiddenError('User not found.')
+		}
+
+		const resetPassToken = await generateToken(user, 'resetPassToken')
+
+		const existedEmail = await this.emailResolver.createEmail({
+			userId: user._id,
+			type: Type.FORGOT_PASSWORD
+		})
+
+		// console.log(existedEmail)
+
+		await sendMail(
+			'forgotPassword',
+			user,
+			req,
+			resetPassToken,
+			existedEmail._id
+		)
+
+		const date = new Date()
+
+		const updateUser = await getMongoRepository(User).save(
+			new User({
+				...user,
+				resetPasswordToken: resetPassToken,
+				resetPasswordExpires: date.setHours(date.getHours() + 1) // 1 hour
+			})
+		)
+
+		return updateUser ? true : false
+	}
 	@Mutation()
 	async updateUser(
 		@Args('_id') _id: string,
@@ -211,4 +273,37 @@ export class UserResolver {
 
 		return updateUser ? true : false
 	}
+	
+	@Mutation()
+	async resetPassword(
+		@Args('resetPasswordToken') resetPasswordToken: string,
+		@Args('password') password: string
+	): Promise<boolean> {
+		const user = await getMongoRepository(User).findOne({
+			resetPasswordToken
+		})
+
+		if (!user) {
+			throw new ForbiddenError('User not found.')
+		}
+
+		if (user.resetPasswordExpires < Date.now()) {
+			throw new AuthenticationError(
+				'Reset password token is invalid, please try again.'
+			)
+		}
+
+		const updateUser = await getMongoRepository(User).save(
+			new User({
+				...user,
+					email: user.email,
+					password: await hashPassword(password),
+				resetPasswordToken: null,
+				resetPasswordExpires: null
+			})
+		)
+
+		return updateUser ? true : false
+	}
+
 }
