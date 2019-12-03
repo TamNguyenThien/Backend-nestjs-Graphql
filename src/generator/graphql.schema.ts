@@ -70,11 +70,15 @@ export abstract class IMutation {
 
     abstract deleteUser(_id: string): boolean | Promise<boolean>;
 
+    abstract verifyEmail(emailToken: string): boolean | Promise<boolean>;
+
     abstract login(input: LoginUserInput): LoginResponse | Promise<LoginResponse>;
 
     abstract changePassword(_id: string, currentPassword: string, password: string): boolean | Promise<boolean>;
 
     abstract forgotPassword(email: string): boolean | Promise<boolean>;
+
+    abstract resetPassword(resetPasswordToken: string, password: string): boolean | Promise<boolean>;
 }
 
 export abstract class IQuery {
@@ -102,6 +106,8 @@ export class User {
     lastName?: string;
     username?: string;
     password?: string;
+    resetPasswordToken?: string;
+    resetPasswordExpires?: number;
     createdAt?: number;
     updatedAt?: number;
     isLocked: boolean;
