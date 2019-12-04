@@ -52,7 +52,7 @@ export class User {
 	@Expose()
 	@Column()
 	isVerified: boolean
-	
+
 	@Expose()
 	@Column()
 	createdAt: number
