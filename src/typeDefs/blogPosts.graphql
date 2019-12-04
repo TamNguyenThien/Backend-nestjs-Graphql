@@ -1,0 +1,9 @@
+type BlogPosts {
+	_id: ID!
+	title: String
+	sourceUrl: String
+	newsType: String
+	content: String
+	state: Int
+	createdAt: Float
+}
