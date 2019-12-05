@@ -1,12 +1,6 @@
 import { Entity, ObjectIdColumn, Column } from 'typeorm'
 import { Expose, plainToClass } from 'class-transformer'
 
-enum Type {
-	TYPENEWS,
-	LAST,
-	SPECIALTY
-}
-
 @Entity({
 	name: 'newsGroup',
 	orderBy: {
@@ -28,7 +22,7 @@ export class NewsGroup {
 
 	@Expose()
 	@Column()
-	type: Type
+	type: string
 
 	@Expose()
 	@Column()

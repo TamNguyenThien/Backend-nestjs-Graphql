@@ -5,5 +5,11 @@ type BlogPosts {
 	newsType: String
 	content: String
 	state: Int
+	newsGroups: NewsGroup
 	createdAt: Float
+}
+
+type Query {
+	blogPosts: [BlogPosts!]
+	blogPost(_id: ID!): BlogPosts
 }

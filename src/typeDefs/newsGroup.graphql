@@ -1,19 +1,13 @@
-enum Type {
-	TYPENEWS
-	LAST
-	SPECIALTY
-}
-
 type NewsGroup {
 	_id: ID!
 	parent: String
 	name: String
-	type: Type!
+	type: String
 	count: String
 	countChildFolder: Int
 }
 
 type Query {
-	newsGroups: [NewsGroup!]
-	newsGroup(_id: ID!): NewsGroup
+	newsGroups: [NewsGroup!] @isAuthenticated
+	newsGroup(_id: ID!): NewsGroup @isAuthenticated
 }

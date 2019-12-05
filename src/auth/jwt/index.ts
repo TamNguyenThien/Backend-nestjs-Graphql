@@ -1,10 +1,13 @@
 import { sign, verify } from 'jsonwebtoken'
 import { getMongoRepository } from 'typeorm'
-import { AuthenticationError, ForbiddenError } from 'apollo-server-core'
+import {
+	AuthenticationError,
+	ForbiddenError,
+	ApolloError
+} from 'apollo-server-core'
 
 import { User } from '../../models'
 import { LoginResponse } from '../../generator/graphql.schema'
-
 
 import {
 	ISSUER,
@@ -14,6 +17,8 @@ import {
 	RESETPASS_TOKEN_SECRET,
 	AUDIENCE
 } from '../../environments'
+import { Service3A } from '@digihcs/3a'
+import { parseErrors3A } from 'src/utils'
 
 type TokenType =
 	| 'accessToken'
@@ -97,23 +102,46 @@ export const verifyToken = async (
 ): Promise<User> => {
 	let currentUser
 
-	await verify(token, common[type].privateKey, async (err, data) => {
-		if (err) {
-			throw new AuthenticationError(
-				'Authentication token is invalid, please try again.'
-			)
-		}
-		currentUser = await getMongoRepository(User).findOne({
-			_id: data._id
-		})
-	})
+	const { errors, data } = await Service3A.userByToken(token)
+	if (errors) {
+		throw new ApolloError(parseErrors3A(errors))
+	}
 
-	if (type === 'emailToken') {
-		return currentUser
+	const value = data.typeValue === 'object' ? JSON.parse(data.value) : {}
+	if (data.typeValue === 'object') {
+		currentUser = {
+			_id: data._id,
+			username: data.username,
+			email: value.email,
+			firstname: value.firstname,
+			lastname: value.lastname,
+			isLocked: value.isLocked,
+			isVerified: value.isVerified
+		}
+	} else {
+		currentUser = {
+			_id: data._id,
+			username: data.username
+		}
 	}
-	if (currentUser && !currentUser.isVerified) {
-		throw new ForbiddenError('Please verify your email.')
-	}
+
+	// await verify(token, common[type].privateKey, async (err, data) => {
+	// 	if (err) {
+	// 		throw new AuthenticationError(
+	// 			'Authentication token is invalid, please try again.'
+	// 		)
+	// 	}
+	// 	currentUser = await getMongoRepository(User).findOne({
+	// 		_id: data._id
+	// 	})
+	// })
+
+	// if (type === 'emailToken') {
+	// 	return currentUser
+	// }
+	// if (currentUser && !currentUser.isVerified) {
+	// 	throw new ForbiddenError('Please verify your email.')
+	// }
 
 	return currentUser
 }
@@ -136,7 +164,7 @@ export const tradeToken = async (user: User): Promise<LoginResponse> => {
 	}
 
 	if (!user.isActive) {
-		throw new ForbiddenError('User already doesn\'t exist.')
+		throw new ForbiddenError("User already doesn't exist.")
 	}
 
 	if (user.isLocked) {

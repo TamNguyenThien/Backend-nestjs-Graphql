@@ -9,6 +9,7 @@ export class NewsGroupResolver {
 	async newsGroups(): Promise<NewsGroup[]> {
 		try {
 			const newsGroups = await getMongoRepository(NewsGroup).find({})
+			console.log(newsGroups)
 			return newsGroups
 		} catch (err) {
 			console.log(err)

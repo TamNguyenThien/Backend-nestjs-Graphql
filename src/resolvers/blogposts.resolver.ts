@@ -5,11 +5,8 @@ import { BlogPosts } from '../models'
 
 @Resolver('Blogposts')
 export class BlogpostsResolver {
-	// constructor(
-	// 	private readonly medicalSpecialitiesResolver: MedicalSpecialitiesResolver
-	// ) {}
 	@Query()
-	async medicalSpecialities(): Promise<BlogPosts[]> {
+	async blogPosts(): Promise<BlogPosts[]> {
 		try {
 			const blogPosts = await getMongoRepository(BlogPosts).find({})
 			return blogPosts
@@ -18,7 +15,7 @@ export class BlogpostsResolver {
 		}
 	}
 	@Query()
-	async medicalSpecialitie(@Args('_id') _id: string): Promise<BlogPosts> {
+	async blogPost(@Args('_id') _id: string): Promise<BlogPosts> {
 		try {
 			const blogPost = await getMongoRepository(BlogPosts).findOne({
 				_id
