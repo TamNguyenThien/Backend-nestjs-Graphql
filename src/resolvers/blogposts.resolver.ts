@@ -22,7 +22,7 @@ export class BlogpostsResolver {
 			})
 
 			if (!blogPost) {
-				throw new ForbiddenError('Medical Specialities not found.')
+				throw new ForbiddenError('Blogpost not found.')
 			}
 
 			return blogPost

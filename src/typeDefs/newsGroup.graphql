@@ -8,6 +8,6 @@ type NewsGroup {
 }
 
 type Query {
-	newsGroups: [NewsGroup!] @isAuthenticated
-	newsGroup(_id: ID!): NewsGroup @isAuthenticated
+	newsGroups: [NewsGroup!]
+	newsGroup(_id: ID!): NewsGroup
 }

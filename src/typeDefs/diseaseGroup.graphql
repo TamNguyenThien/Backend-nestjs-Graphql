@@ -1,0 +1,11 @@
+type DiseaseGroup {
+	_id: String
+	name: String
+	createdAt: Float
+	createdBy: User
+}
+
+type Query {
+	diseaseGroups: [DiseaseGroup!]
+	diseaseGroup(_id: ID!): DiseaseGroup
+}
