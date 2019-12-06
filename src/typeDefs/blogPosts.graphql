@@ -1,4 +1,4 @@
-type BlogPosts {
+type BlogPost {
 	_id: ID!
 	title: String
 	sourceUrl: String
@@ -9,7 +9,13 @@ type BlogPosts {
 	createdAt: Float
 }
 
+type NextAndPrevPost {
+	prevPost: BlogPost
+	nextPost: BlogPost
+}
+
 type Query {
-	blogPosts: [BlogPosts!]
-	blogPost(_id: ID!): BlogPosts
+	blogPosts: [BlogPost!]
+	blogPost(_id: ID!): BlogPost
+	getNextAndPrevPost(_id: ID!): NextAndPrevPost
 }

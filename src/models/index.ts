@@ -1,5 +1,5 @@
 export * from './user.entity'
 export * from './email.entity'
-export * from './blogposts.entity'
+export * from './blogPost.entity'
 export * from './newsGroup.entity'
-export * from './diseaseGroups.entity'
+export * from './diseaseGroup.entity'

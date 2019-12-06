@@ -8,7 +8,7 @@ import { Expose, plainToClass } from 'class-transformer'
 		createdAt: 'ASC'
 	}
 })
-export class BlogPosts {
+export class BlogPost {
 	@Expose()
 	@ObjectIdColumn()
 	_id: string
@@ -57,11 +57,11 @@ export class BlogPosts {
 	@Column()
 	history: any[]
 
-	constructor(blogposts: Partial<BlogPosts>) {
-		if (blogposts) {
+	constructor(blogpost: Partial<BlogPost>) {
+		if (blogpost) {
 			Object.assign(
 				this,
-				plainToClass(BlogPosts, blogposts, {
+				plainToClass(BlogPost, blogpost, {
 					excludeExtraneousValues: true
 				})
 			)
