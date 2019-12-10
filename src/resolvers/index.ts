@@ -1,2 +1,5 @@
 export * from './user.resolver'
 export * from './email.resolver'
+export * from './newsGroup.resolver'
+export * from './blogposts.resolver'
+export * from './diseaseGroup.resolver'

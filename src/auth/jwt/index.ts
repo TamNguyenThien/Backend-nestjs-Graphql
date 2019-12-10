@@ -1,12 +1,15 @@
 import { sign, verify } from 'jsonwebtoken'
 import { getMongoRepository } from 'typeorm'
-import { AuthenticationError, ForbiddenError } from 'apollo-server-core'
+import {
+	AuthenticationError,
+	ForbiddenError,
+	ApolloError
+} from 'apollo-server-core'
 
 import { Service3A, GraphqlError as GraphqlError3A } from '@digihcs/3a'
 // import { User } from '../../models'
 import { User } from "/home/thientam/js/mdnews-backend/node_modules/@digihcs/3a/dist/types"
 import { LoginResponse } from '../../generator/graphql.schema'
-
 
 import {
 	ISSUER,
@@ -16,7 +19,12 @@ import {
 	RESETPASS_TOKEN_SECRET,
 	AUDIENCE
 } from '../../environments'
+<<<<<<< HEAD
 import { userInfo } from 'os'
+=======
+import { Service3A } from '@digihcs/3a'
+import { parseErrors3A } from 'src/utils'
+>>>>>>> 7d460194363a5970139309ff611bde9d61416e87
 
 type TokenType =
 	| 'accessToken'
@@ -102,6 +110,7 @@ export const verifyToken = async (
 ): Promise<Boolean> => {
 	let currentUser
 
+<<<<<<< HEAD
 	const { data, errors } = await Service3A.verifyToken(
 		token
 	)
@@ -124,10 +133,48 @@ export const verifyToken = async (
 	}
 	if (errors) {
 		return false
+=======
+	const { errors, data } = await Service3A.userByToken(token)
+	if (errors) {
+		throw new ApolloError(parseErrors3A(errors))
+>>>>>>> 7d460194363a5970139309ff611bde9d61416e87
 	}
-	if (currentUser && !currentUser.isVerified) {
-		throw new ForbiddenError('Please verify your email.')
+
+	const value = data.typeValue === 'object' ? JSON.parse(data.value) : {}
+	if (data.typeValue === 'object') {
+		currentUser = {
+			_id: data._id,
+			username: data.username,
+			email: value.email,
+			firstname: value.firstname,
+			lastname: value.lastname,
+			isLocked: value.isLocked,
+			isVerified: value.isVerified
+		}
+	} else {
+		currentUser = {
+			_id: data._id,
+			username: data.username
+		}
 	}
+
+	// await verify(token, common[type].privateKey, async (err, data) => {
+	// 	if (err) {
+	// 		throw new AuthenticationError(
+	// 			'Authentication token is invalid, please try again.'
+	// 		)
+	// 	}
+	// 	currentUser = await getMongoRepository(User).findOne({
+	// 		_id: data._id
+	// 	})
+	// })
+
+	// if (type === 'emailToken') {
+	// 	return currentUser
+	// }
+	// if (currentUser && !currentUser.isVerified) {
+	// 	throw new ForbiddenError('Please verify your email.')
+	// }
 
 	return currentUser
 }
@@ -149,9 +196,15 @@ export const verifyToken = async (
 // 		throw new ForbiddenError('Please verify your email.')
 // 	}
 
+<<<<<<< HEAD
 // 	if (!user.isActive) {
 // 		throw new ForbiddenError('User already doesn\'t exist.')
 // 	}
+=======
+	if (!user.isActive) {
+		throw new ForbiddenError("User already doesn't exist.")
+	}
+>>>>>>> 7d460194363a5970139309ff611bde9d61416e87
 
 // 	if (user.isLocked) {
 // 		throw new ForbiddenError('Your email has been locked.')

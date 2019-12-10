@@ -1,0 +1,21 @@
+type BlogPost {
+	_id: ID!
+	title: String
+	sourceUrl: String
+	newsType: String
+	content: String
+	state: Int
+	newsGroups: NewsGroup
+	createdAt: Float
+}
+
+type NextAndPrevPost {
+	prevPost: BlogPost
+	nextPost: BlogPost
+}
+
+type Query {
+	blogPosts: [BlogPost!]
+	blogPost(_id: ID!): BlogPost
+	getNextAndPrevPost(_id: ID!): NextAndPrevPost
+}
