@@ -1,7 +1,8 @@
 import * as nodemailer from 'nodemailer'
 import * as handlebars from 'handlebars'
 import * as fs from 'fs'
-import { User } from '../../models'
+import { User } from "/home/thientam/js/mdnews-backend/node_modules/@digihcs/3a/dist/types"
+// import { User } from '../../models'
 import {
 	AUTHOR,
 	END_POINT,
@@ -48,7 +49,8 @@ export const sendMail = async (
 			rejectUnauthorized: false
 		}
 	})
-
+	const value = JSON.parse(user.value)
+	const email = value.email
 	const readHTMLFile = (path, callback) => {
 		fs.readFile(path, { encoding: 'utf-8' }, (err, html) => {
 			if (err) {
@@ -61,7 +63,6 @@ export const sendMail = async (
 
 	readHTMLFile('./src/assets/templates/udacity-index.html', (err, html) => {
 		const template = handlebars.compile(html)
-
 		const common = {
 			author: AUTHOR!,
 			issuer: ISSUER!,
@@ -76,7 +77,7 @@ export const sendMail = async (
 			street: 'Su Van Hanh',
 			city: 'Ho Chi Minh',
 			country: 'Viet Nam',
-			to: user.email,
+			to: email,
 			tracking: `http://${req.headers.host}/${END_POINT}/${_id}`
 		}
 
@@ -102,10 +103,9 @@ export const sendMail = async (
 		}
 
 		const htmlToSend = template(replacements[type])
-
 		const mailOptions = {
 			from: 'News 📮:' + NODEMAILER_USER, // sender address
-			to: user.email, // list of receivers
+			to: email, // list of receivers
 			subject: replacements[type].subject,
 			html: htmlToSend,
 			attachments: [

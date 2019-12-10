@@ -2,7 +2,9 @@ import { sign, verify } from 'jsonwebtoken'
 import { getMongoRepository } from 'typeorm'
 import { AuthenticationError, ForbiddenError } from 'apollo-server-core'
 
-import { User } from '../../models'
+import { Service3A, GraphqlError as GraphqlError3A } from '@digihcs/3a'
+// import { User } from '../../models'
+import { User } from "/home/thientam/js/mdnews-backend/node_modules/@digihcs/3a/dist/types"
 import { LoginResponse } from '../../generator/graphql.schema'
 
 
@@ -14,6 +16,7 @@ import {
 	RESETPASS_TOKEN_SECRET,
 	AUDIENCE
 } from '../../environments'
+import { userInfo } from 'os'
 
 type TokenType =
 	| 'accessToken'
@@ -64,6 +67,8 @@ export const generateToken = async (
 	user: User,
 	type: TokenType
 ): Promise<string> => {
+	// const value = JSON.parse(user.value)
+	// const email = value.email
 	return await sign(
 		{
 			_id: user._id
@@ -71,7 +76,7 @@ export const generateToken = async (
 		common[type].privateKey,
 		{
 			issuer: ISSUER!,
-			subject: user.email,
+			subject: user.value,
 			audience: AUDIENCE!,
 			algorithm: 'HS256',
 			expiresIn: common[type].signOptions.expiresIn // 15m
@@ -94,22 +99,31 @@ export const generateToken = async (
 export const verifyToken = async (
 	token: string,
 	type: TokenType
-): Promise<User> => {
+): Promise<Boolean> => {
 	let currentUser
 
-	await verify(token, common[type].privateKey, async (err, data) => {
-		if (err) {
-			throw new AuthenticationError(
-				'Authentication token is invalid, please try again.'
-			)
-		}
-		currentUser = await getMongoRepository(User).findOne({
-			_id: data._id
-		})
-	})
+	const { data, errors } = await Service3A.verifyToken(
+		token
+	)
+	// await verify(token, common[type].privateKey, async (err, data) => {
+	// 	if (err) {
+	// 		throw new AuthenticationError(
+	// 			'Authentication token is invalid, please try again.'
+	// 		)
+	// 	}
+	// 	currentUser = await getMongoRepository(User).findOne({
+	// 		_id: data._id
+	// 	})
+	// })
 
-	if (type === 'emailToken') {
-		return currentUser
+	// if (type === 'emailToken') {
+	// 	return currentUser
+	// }
+	if (data) {
+		return true
+	}
+	if (errors) {
+		return false
 	}
 	if (currentUser && !currentUser.isVerified) {
 		throw new ForbiddenError('Please verify your email.')
@@ -130,21 +144,21 @@ export const verifyToken = async (
  *
  * @beta
  */
-export const tradeToken = async (user: User): Promise<LoginResponse> => {
-	if (!user.isVerified) {
-		throw new ForbiddenError('Please verify your email.')
-	}
+// export const tradeToken = async (user: User): Promise<LoginResponse> => {
+// 	if (!user.isVerified) {
+// 		throw new ForbiddenError('Please verify your email.')
+// 	}
 
-	if (!user.isActive) {
-		throw new ForbiddenError('User already doesn\'t exist.')
-	}
+// 	if (!user.isActive) {
+// 		throw new ForbiddenError('User already doesn\'t exist.')
+// 	}
 
-	if (user.isLocked) {
-		throw new ForbiddenError('Your email has been locked.')
-	}
+// 	if (user.isLocked) {
+// 		throw new ForbiddenError('Your email has been locked.')
+// 	}
 
-	const accessToken = await generateToken(user, 'accessToken')
-	const refreshToken = await generateToken(user, 'refreshToken')
+// 	const accessToken = await generateToken(user, 'accessToken')
+// 	const refreshToken = await generateToken(user, 'refreshToken')
 
-	return { accessToken, refreshToken }
-}
+// 	return { accessToken, refreshToken }
+// }

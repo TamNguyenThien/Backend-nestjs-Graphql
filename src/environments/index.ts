@@ -1,12 +1,9 @@
 import * as dotenv from 'dotenv'
 dotenv.config()
-
 // environment
 const NODE_ENV: string = process.env.NODE_ENV || 'development'
-
 // author
 const AUTHOR: string = process.env.AUTHOR || 'AcexisNews'
-
 // application
 const PRIMARY_COLOR: string = process.env.PRIMARY_COLOR || '#87e8de'
 const DOMAIN: string = process.env.DOMAIN || 'devcloud6.digihcs.com'
@@ -16,10 +13,8 @@ const VOYAGER: string = process.env.VOYAGER || 'voyager'
 const FE_URL: string = process.env.FE_URL || 'xxx'
 const RATE_LIMIT_MAX: number = +process.env.RATE_LIMIT_MAX || 10000
 const GRAPHQL_DEPTH_LIMIT: number = +process.env.GRAPHQL_DEPTH_LIMIT || 3
-
 // static
 const STATIC: string = process.env.STATIC || 'static'
-
 // mlab
 const MLAB_USER = process.env.MLAB_USER || 'admin'
 const MLAB_PASS = process.env.MLAB_PASS || 'chnirt1803'
@@ -29,7 +24,6 @@ const MLAB_DATABASE = process.env.MLAB_DATABASE || 'test'
 const MLAB_URL =
 	process.env.MLAB_URL ||
 	`mongodb://${MLAB_USER}:${MLAB_PASS}@${MLAB_HOST}:${MLAB_PORT}/${MLAB_DATABASE}`
-
 // mongodb
 const MONGO_URL: string = process.env.MONGO_URL
 	|| MLAB_URL

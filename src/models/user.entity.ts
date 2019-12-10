@@ -15,11 +15,11 @@ export class User {
 
 	@Expose()
 	@Column()
-	firstName: string
+	firstname: string
 
 	@Expose()
 	@Column()
-	lastName: string
+	lastname: string
 
 	@Expose()
 	@Column()

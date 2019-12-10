@@ -22,9 +22,9 @@ export class CreateEmailInput {
 }
 
 export class CreateUserInput {
-    firstName: string;
-    lastName: string;
-    username?: string;
+    firstname: string;
+    lastname: string;
+    username: string;
     email: string;
     password: string;
 }
@@ -37,6 +37,9 @@ export class LoginUserInput {
 export class UpdateUserInput {
     username: string;
     password: string;
+    firstname: string;
+    lastname: string;
+    email: string;
 }
 
 export class Email {
@@ -64,7 +67,7 @@ export abstract class IMutation {
 
     abstract refreshToken(refreshToken: string): RefreshTokenResponse | Promise<RefreshTokenResponse>;
 
-    abstract createUser(input: CreateUserInput): User | Promise<User>;
+    abstract createUser(input: CreateUserInput): boolean | Promise<boolean>;
 
     abstract updateUser(_id: string, input: UpdateUserInput): boolean | Promise<boolean>;
 
@@ -74,7 +77,7 @@ export abstract class IMutation {
 
     abstract login(input: LoginUserInput): LoginResponse | Promise<LoginResponse>;
 
-    abstract changePassword(_id: string, currentPassword: string, password: string): boolean | Promise<boolean>;
+    abstract changePassword(username: string, password: string): boolean | Promise<boolean>;
 
     abstract forgotPassword(email: string): boolean | Promise<boolean>;
 
@@ -102,17 +105,17 @@ export class RefreshTokenResponse {
 export class User {
     _id: string;
     email?: string;
-    firstName?: string;
-    lastName?: string;
+    firstname?: string;
+    lastname?: string;
     username?: string;
     password?: string;
     resetPasswordToken?: string;
     resetPasswordExpires?: number;
     createdAt?: number;
     updatedAt?: number;
-    isLocked: boolean;
-    isVerified: boolean;
-    isActive: boolean;
+    isLocked?: boolean;
+    isVerified?: boolean;
+    isActive?: boolean;
 }
 
 export type JSON = any;
